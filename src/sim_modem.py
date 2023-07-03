@@ -261,6 +261,25 @@ class Modem:
             raise Exception("Command failed")
         return read[1]
 
+    def get_temperature(self) -> str:
+        if self.debug:
+            self.comm.send("AT+CPMUTEMP=?")
+            read = self.comm.read_lines()
+            if read[-1] != "OK":
+                raise Exception("Unsupported command")
+            print("Sending: AT+CPMUTEMP")
+
+        self.comm.send("AT+CPMUTEMP")
+        read = self.comm.read_lines()
+
+        # ['AT+CPMUTEMP', '+CPMUTEMP: 28', '', 'OK']
+        if self.debug:
+            print("Device responded: ", read)
+
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        return read[1].split(": ")[1]
+
     # ---------------------------------- NETWORK --------------------------------- #
 
     def get_network_registration_status(self) -> str:
