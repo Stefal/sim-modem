@@ -291,14 +291,33 @@ class Modem:
         self.comm.send("AT+DIALMODE?")
         read = self.comm.read_lines()
 
-        # ['AT+DIALMODE?', '+DIALMODE: 0', '', 'OK' ]
+        # ['AT+DIALMODE?', '+DIALMODE: 0', '', 'OK']
         if self.debug:
             print("Device responded: ", read)
         
         if read[-1] != "OK":
             raise Exception("Command failed")
         return read[1].split(": ")[1]
+
+    def set_autodial_mode(self, dialmode) -> str:
+        if self.debug:
+            self.comm.send("AT+DIALMODE=?")
+            read = self.comm.read_lines()
+            if read[-1] != "OK":
+                raise Exception("Unsupported command")
+            print("Sending: AT+DIALMODE={}".format(dialmode))
         
+        self.comm.send("AT+DIALMODE={}".format(dialmode))
+        read = self.comm.read_lines()
+
+        # ['AT+DIALMODE=0', 'OK']
+        if self.debug:
+            print("Device responded: ", read)
+        
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        return read[-1]
+
     # ---------------------------------- NETWORK --------------------------------- #
 
     def get_network_registration_status(self) -> str:
