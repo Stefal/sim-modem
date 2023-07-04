@@ -1,6 +1,7 @@
 from serial_comm import SerialComm
 from enum import Enum
 from logging import getLogger
+import time
 
 
 class NetworkMode(Enum):
@@ -20,7 +21,11 @@ class SignalQuality(Enum):
     GOOD = "GOOD"
     EXCELLENT = "EXCELLENT"
 
+class DataMode(Enum):
 
+    RNDIS = '"usbnetmode",0'
+    ECM = '"usbnetmode",1'
+    
 class Modem:
     """Class for interfacing with mobile modem"""
 
@@ -57,9 +62,9 @@ class Modem:
             pass
 
         self.comm = SerialComm(
-            address=self.comm.address,
-            baudrate=self.comm.baudrate,
-            timeout=self.comm.timeout,
+            address=self.comm.modem_serial.port,
+            baudrate=self.comm.modem_serial.baudrate,
+            timeout=self.comm.modem_serial.timeout,
             at_cmd_delay=self.comm.at_cmd_delay,
         )
 
@@ -508,6 +513,51 @@ class Modem:
         if read[-1] != "OK":
             raise Exception("Command failed")
         return read[1]
+
+    def get_data_connection_mode(self) -> DataMode:
+        if self.debug:
+            self.comm.send("AT$MYCONFIG=?")
+            read = self.comm.read_lines()
+            if read[-1] != "OK":
+                raise Exception("Unsupported command")
+            print("Sending: AT$MYCONFIG?")
+        
+        self.comm.send("AT$MYCONFIG?")
+        read = self.comm.read_lines()
+
+        # ['AT$MYCONFIG?', '$MYCONFIG: "usbnetmode",1', '', 'OK']
+        if self.debug:
+            print("Device responded: ", read)
+
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        nm = read[1].split(": ")[1]
+        return DataMode(nm)
+
+    def set_data_connection_mode(self, mode: DataMode) ->str:
+        if self.debug:
+            self.comm.send("AT$MYCONFIG=?")
+            read = self.comm.read_lines()
+            if read[-1] != "OK":
+                raise Exception("Unsupported command")
+            print("Sending: AT$MYCONFIG={}".format(mode.value))
+        
+        self.comm.send("AT$MYCONFIG={}".format(mode.value))
+        #When switching mode, the modem get detached. We have to close the connection or
+        # the modem will get a new tty port upon reconnection.
+        self.close()
+        time.sleep(10)
+        for i in range(5):
+            try:
+                self.reconnect()
+                break
+            except:
+                print("Retrying...")
+                time.sleep(5)
+                pass
+        #Yes it's a little hacky
+        
+        return self.get_data_connection_mode()
 
     # ------------------------------------ GPS ----------------------------------- #
 
