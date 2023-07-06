@@ -344,6 +344,39 @@ class Modem:
             raise Exception("Command failed")
         return read[1].split(": ")[1]
 
+    def get_eps_network_registration_status(self) -> str:
+        """
+            Get the eps (lte) network registration status (packet domain).
+            The second value is the answer and could be from 0 to 8 :
+            0 : not registered and not currently searching an operator to register to
+            1 : registered
+            2 : not registered but trying to
+            3 : registration denied
+            4 : n/a
+            5 : registered (roaming)
+            6 : registered for SMS only
+            7 : registered for SMS only (roaming)
+            8 : attached for emergency services only
+            
+        """
+        if self.debug:
+            self.comm.send("AT+CEREG=?")
+            read = self.comm.read_lines()
+            if read[-1] != "OK":
+                raise Exception("Unsupported command")
+            print("Sending: AT+CEREG?")
+
+        self.comm.send("AT+CEREG?")
+        read = self.comm.read_lines()
+
+        # ['AT+CEREG?', '+CEREG: 0,1', '', 'OK']
+        if self.debug:
+            print("Device responded: ", read)
+
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        return read[1].split(": ")[1]
+
     def get_network_mode(self) -> NetworkMode:
         if self.debug:
             self.comm.send("AT+CNMP=?")
