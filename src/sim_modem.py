@@ -661,7 +661,7 @@ class Modem:
 
         if read[-1] != "OK":
             raise Exception("Command failed")
-        nm = read[1].split(": ")[1]
+        nm = read[-2].split(": ")[1]
         return DataMode(nm)
 
     def set_data_connection_mode(self, mode: DataMode) -> DataMode:
@@ -693,7 +693,8 @@ class Modem:
             except:
                 print("Retrying...")
                 time.sleep(5)
-                pass
+        time.sleep(5)
+        self.comm.modem_serial.flushInput()
         #Yes it's a little hacky
         
         return self.get_data_connection_mode()
