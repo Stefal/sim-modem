@@ -70,7 +70,7 @@ class Modem:
 
         self.comm.send("ATZ")
         self.comm.send("ATE1")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
         # ['ATZ', 'OK', 'ATE1', 'OK']
         if read[-1] != "OK":
             raise Exception("Connection lost", read)
@@ -86,13 +86,13 @@ class Modem:
     def get_manufacturer_identification(self) -> str:
         if self.debug:
             self.comm.send("AT+CGMI=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CGMI")
 
         self.comm.send("AT+CGMI")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         if self.debug:
             print("Device responded: ", read)
@@ -105,13 +105,13 @@ class Modem:
     def get_model_identification(self) -> str:
         if self.debug:
             self.comm.send("AT+CGMM=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CGMM")
 
         self.comm.send("AT+CGMM")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CGMM', 'SIM7000E', '', 'OK']
         if self.debug:
@@ -124,13 +124,13 @@ class Modem:
     def get_serial_number(self) -> str:
         if self.debug:
             self.comm.send("AT+CGSN=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CGSN")
 
         self.comm.send("AT+CGSN")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CGSN', '89014103211118510700', '', 'OK']
         if self.debug:
@@ -143,13 +143,13 @@ class Modem:
     def get_firmware_version(self) -> str:
         if self.debug:
             self.comm.send("AT+CGMR=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CGMR")
 
         self.comm.send("AT+CGMR")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CGMR', '+CGMR: LE20B03SIM7600M22', '', 'OK']
         if self.debug:
@@ -162,13 +162,13 @@ class Modem:
     def get_volume(self) -> str:
         if self.debug:
             self.comm.send("AT+CLVL=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CLVL")
 
         self.comm.send("AT+CLVL?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CLVL?', '+CLVL: 5', '', 'OK']
         if self.debug:
@@ -181,7 +181,7 @@ class Modem:
     def set_volume(self, volume: int) -> str:
         if self.debug:
             self.comm.send("AT+CLVL=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CLVL={}".format(volume))
@@ -189,7 +189,7 @@ class Modem:
         if int(volume) < 0 or int(volume) > 5:
             raise Exception("Volume must be between 0 and 5")
         self.comm.send("AT+CLVL={}".format(volume))
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CLVL=5', 'OK']
         if self.debug:
@@ -202,14 +202,14 @@ class Modem:
     def improve_tdd(self) -> str:
         if self.debug:
             self.comm.send("AT+AT+PWRCTL=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+AT+PWRCTL=0,1,3")
 
         # ['AT+AT+PWRCTL=?', '+PWRCTL: (0-1),(0-1),(0-3)', '', 'OK']
         self.comm.send("AT+PWRCTL=0,1,3")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+PWRCTL=0,1,3', 'OK']
         if self.debug:
@@ -221,7 +221,7 @@ class Modem:
 
     # def reset_module(self) -> str:
     #     self.comm.send("AT+CRESET")
-    #     read = self.comm.read_lines()
+    #     read = self.comm.read_until()
     #     # ['AT+CRESET', 'OK']
     #     if read[-1] != "OK":
     #         raise Exception("Command failed")
@@ -231,13 +231,13 @@ class Modem:
     def enable_echo_suppression(self) -> str:
         if self.debug:
             self.comm.send("AT+CECM=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CECM=1")
 
         self.comm.send("AT+CECM=1")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CECM=1', 'OK']
         if self.debug:
@@ -250,13 +250,13 @@ class Modem:
     def disable_echo_suppression(self) -> str:
         if self.debug:
             self.comm.send("AT+CECM=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CECM=0")
 
         self.comm.send("AT+CECM=0")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CECM=0', 'OK']
         if self.debug:
@@ -269,13 +269,13 @@ class Modem:
     def get_temperature(self) -> str:
         if self.debug:
             self.comm.send("AT+CPMUTEMP=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CPMUTEMP")
 
         self.comm.send("AT+CPMUTEMP")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CPMUTEMP', '+CPMUTEMP: 28', '', 'OK']
         if self.debug:
@@ -288,13 +288,13 @@ class Modem:
     def get_autodial_mode(self) -> str:
         if self.debug:
             self.comm.send("AT+DIALMODE=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+DIALMODE?")
         
         self.comm.send("AT+DIALMODE?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+DIALMODE?', '+DIALMODE: 0', '', 'OK']
         if self.debug:
@@ -307,13 +307,13 @@ class Modem:
     def set_autodial_mode(self, dialmode) -> str:
         if self.debug:
             self.comm.send("AT+DIALMODE=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+DIALMODE={}".format(dialmode))
         
         self.comm.send("AT+DIALMODE={}".format(dialmode))
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+DIALMODE=0', 'OK']
         if self.debug:
@@ -328,13 +328,13 @@ class Modem:
     def get_network_registration_status(self) -> str:
         if self.debug:
             self.comm.send("AT+CREG=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CREG?")
 
         self.comm.send("AT+CREG?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CREG?', '+CREG: 0,1', '', 'OK']
         if self.debug:
@@ -361,13 +361,13 @@ class Modem:
         """
         if self.debug:
             self.comm.send("AT+CEREG=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CEREG?")
 
         self.comm.send("AT+CEREG?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CEREG?', '+CEREG: 0,1', '', 'OK']
         if self.debug:
@@ -380,13 +380,13 @@ class Modem:
     def get_network_mode(self) -> NetworkMode:
         if self.debug:
             self.comm.send("AT+CNMP=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CNMP?")
 
         self.comm.send("AT+CNMP?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CNMP?', '+CNMP: 2', '', 'OK']
         if self.debug:
@@ -401,14 +401,14 @@ class Modem:
     def get_network_name(self) -> str:
         if self.debug:
             #self.comm.send("AT+COPS=?")
-            #read = self.comm.read_lines()
+            #read = self.comm.read_until()
             #if read[-1] != "OK":
             #    raise Exception("Unsupported command")
             print("no debug available, answer to AT+COPS=? is too slow")
             print("Sending: AT+COPS?")
 
         self.comm.send("AT+COPS?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+COPS?', '+COPS: 0,0,"Vodafone D2",7', '', 'OK']
         if self.debug:
@@ -421,13 +421,13 @@ class Modem:
     def get_network_operator(self) -> str:
         if self.debug:
             self.comm.send("AT+COPS=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+COPS?")
 
         self.comm.send("AT+COPS?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+COPS?', '+COPS: 0,0,"Vodafone D2",7', '', 'OK']
         if self.debug:
@@ -463,13 +463,13 @@ class Modem:
     def get_signal_quality_db(self) -> int:
         if self.debug:
             self.comm.send("AT+CSQ=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CSQ")
 
         self.comm.send("AT+CSQ")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CSQ', '+CSQ: 19,99', '', 'OK']
         if self.debug:
@@ -483,13 +483,13 @@ class Modem:
     def get_signal_quality_range(self) -> SignalQuality:
         if self.debug:
             self.comm.send("AT+CSQ=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CSQ")
 
         self.comm.send("AT+CSQ")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CSQ', '+CSQ: 19,99', '', 'OK']
         if self.debug:
@@ -510,13 +510,13 @@ class Modem:
     def get_phone_number(self) -> str:
         if self.debug:
             self.comm.send("AT+CNUM=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CNUM")
 
         self.comm.send("AT+CNUM")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CNUM', '+CNUM: ,"+491234567890",145', '', 'OK']
         # ['AT+CNUM', 'OK']
@@ -530,13 +530,13 @@ class Modem:
     def get_sim_status(self) -> str:
         if self.debug:
             self.comm.send("AT+CPIN=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CPIN?")
 
         self.comm.send("AT+CPIN?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CPIN?', '+CPIN: READY', '', 'OK']
         if self.debug:
@@ -546,7 +546,7 @@ class Modem:
 
     def set_network_mode(self, mode: NetworkMode) -> str:
         self.comm.send("AT+CNMP={}".format(mode.value))
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
         # ['AT+CNMP=2', 'OK']
         if read[-1] != "OK":
             raise Exception("Command failed")
@@ -555,13 +555,13 @@ class Modem:
     def get_data_connection_mode(self) -> DataMode:
         if self.debug:
             self.comm.send("AT$MYCONFIG=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT$MYCONFIG?")
         
         self.comm.send("AT$MYCONFIG?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT$MYCONFIG?', '$MYCONFIG: "usbnetmode",1', '', 'OK']
         if self.debug:
@@ -575,7 +575,7 @@ class Modem:
     def set_data_connection_mode(self, mode: DataMode) ->str:
         if self.debug:
             self.comm.send("AT$MYCONFIG=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT$MYCONFIG={}".format(mode.value))
@@ -602,13 +602,13 @@ class Modem:
     def get_gps_status(self) -> str:
         if self.debug:
             self.comm.send("AT+CGPS=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CGPS?")
 
         self.comm.send("AT+CGPS?")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CGPS?', '+CGPS: 0,1', '', 'OK']
         if self.debug:
@@ -621,13 +621,13 @@ class Modem:
     def start_gps(self) -> str:
         if self.debug:
             self.comm.send("AT+CGPS=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CGPS=1,1")
 
         self.comm.send("AT+CGPS=1,1")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CGPS=1', 'OK']
         if self.debug:
@@ -640,7 +640,7 @@ class Modem:
     def stop_gps(self) -> str:
         if self.debug:
             self.comm.send("AT+CGPS=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CGPS=0")
@@ -660,7 +660,7 @@ class Modem:
     def get_gps_coordinates(self) -> dict:
         if self.debug:
             self.comm.send("AT+CGPS=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CGPS=1,1")
@@ -669,7 +669,7 @@ class Modem:
         self.comm.send("AT+CGPS=1,1")
         self.comm.send("AT+CGPSINFO")
         # self.comm.send("AT+CGPS=0")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # +CGPSINFO: [lat],[N/S],[log],[E/W],[date],[UTC time],[alt],[speed],[course]
         # ['AT+CGPS=1', 'OK', 'AT+CGPSINFO', '+CGPSINFO: 1831.991044,N,07352.807453,E,141008,112307.0,553.9,0.0,113', 'OK']
@@ -694,7 +694,7 @@ class Modem:
     def get_sms_list(self) -> list:
         if self.debug:
             self.comm.send("AT+CMGF=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CMGF=1")
@@ -733,7 +733,7 @@ class Modem:
     def empty_sms(self) -> str:
         if self.debug:
             self.comm.send("AT+CMGF=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CMGF=1")
@@ -741,7 +741,7 @@ class Modem:
 
         self.comm.send("AT+CMGF=1")
         self.comm.send("AT+CMGD=1,4")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CMGF=1', 'OK', 'AT+CMGD=1,4', 'OK']
         if self.debug:
@@ -753,7 +753,7 @@ class Modem:
     def send_sms(self, recipient, message) -> str:
         if self.debug:
             self.comm.send("AT+CMGF=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CMGF=1")
@@ -765,7 +765,7 @@ class Modem:
         self.comm.send('AT+CMGS="{}"'.format(recipient))
         self.comm.send(message)
         self.comm.send(chr(26))
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CMGF=1', 'OK', 'AT+CMGS="491234567890"', '', '> Test', chr(26), 'OK']
         if self.debug:
@@ -779,7 +779,7 @@ class Modem:
         if self.debug:
             self.comm.send("AT+CMGF=?")
             self.comm.send("AT+CMGR=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CMGF=1")
@@ -787,7 +787,7 @@ class Modem:
 
         self.comm.send("AT+CMGF=1")
         self.comm.send("AT+CMGR={}".format(slot))
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CMGF=1', 'OK', 'AT+CMGR=1', '+CMGR: "REC READ","+491234567890",,"12/08/14,14:01:06+32"', 'Test', '', 'OK']
         # ['AT+CMGF=1', 'OK'] # if empty
@@ -807,7 +807,7 @@ class Modem:
     def delete_sms(self, slot: int) -> str:
         if self.debug:
             self.comm.send("AT+CMGF=?")
-            read = self.comm.read_lines()
+            read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
             print("Sending: AT+CMGF=1")
@@ -815,7 +815,7 @@ class Modem:
 
         self.comm.send("AT+CMGF=1")
         self.comm.send("AT+CMGD={}".format(slot))
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CMGF=1', 'OK', 'AT+CMGD=1', 'OK']
         if self.debug:
@@ -832,7 +832,7 @@ class Modem:
             print("Sending: ATD{};".format(number))
 
         self.comm.send("ATD{};".format(number))
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['ATD491234567890;', 'OK']
         if self.debug:
@@ -847,7 +847,7 @@ class Modem:
             print("Sending: ATA")
 
         self.comm.send("ATA")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['ATA', 'OK']
         if self.debug:
@@ -862,7 +862,7 @@ class Modem:
             print("Sending: AT+CHUP")
 
         self.comm.send("AT+CHUP")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CHUP', 'OK']
         if self.debug:
