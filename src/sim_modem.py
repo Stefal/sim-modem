@@ -439,18 +439,22 @@ class Modem:
 
     def get_signal_quality(self) -> str:
         if self.debug:
-            self.comm.send("AT+CSQ=?")
-            read = self.comm.read_lines()
-            if read[-1] != "OK":
-                raise Exception("Unsupported command")
-            print("Sending: AT+CSQ")
+            try:
+                self.comm.send("AT+CSQ=?")
+                read = self.comm.read_until()
+                if read[-1] != "OK":
+                    raise SyntaxError()
+            except (IndexError, SyntaxError):
+                print("DEBUG Unsupported command : ", read)
+                return
+            print("DEBUG Sending: AT+CSQ")
 
         self.comm.send("AT+CSQ")
-        read = self.comm.read_lines()
+        read = self.comm.read_until()
 
         # ['AT+CSQ', '+CSQ: 19,99', '', 'OK']
         if self.debug:
-            print("Device responded: ", read)
+            print("DEBUG Device responded: ", read)
 
         if read[-1] != "OK":
             raise Exception("Command failed")
