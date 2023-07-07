@@ -400,10 +400,11 @@ class Modem:
 
     def get_network_name(self) -> str:
         if self.debug:
-            self.comm.send("AT+COPS=?")
-            read = self.comm.read_lines()
-            if read[-1] != "OK":
-                raise Exception("Unsupported command")
+            #self.comm.send("AT+COPS=?")
+            #read = self.comm.read_lines()
+            #if read[-1] != "OK":
+            #    raise Exception("Unsupported command")
+            print("no debug available, answer to AT+COPS=? is too slow")
             print("Sending: AT+COPS?")
 
         self.comm.send("AT+COPS?")
@@ -866,3 +867,10 @@ class Modem:
         if read[-1] != "OK":
             raise Exception("Command failed")
         return read[1]
+
+    # ----------------------------------- OTHERS --------------------------------- #
+
+    def custom(self, at_cmd) -> str:
+        self.comm.send(at_cmd)
+        read = self.comm.read_lines()
+        return read
