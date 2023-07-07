@@ -491,6 +491,36 @@ class Modem:
         if read[-1] != "OK":
             raise Exception("Command failed")
         return read[1].split(",")[2].strip('"').split(" ")[0]
+    
+    def get_eu_system_informations(self) -> str:
+        """
+            Get European Union system informations
+            return
+                system mode, operation mode, MCC, MNC, band, ...
+            todo : more details
+        """
+        if self.debug:
+            try:
+                self.comm.send("AT+CPSI=?")
+                read = self.comm.read_until()
+                if read[-1] != "OK":
+                    raise SyntaxError()
+            except (IndexError, SyntaxError):
+                print("DEBUG Unsupported command : ", read)
+                return
+            print("DEBUG Sending: AT+CPSI?")
+
+        self.comm.send("AT+CPSI?")
+        read = self.comm.read_until()
+
+        # ['AT+CPSI?', '+CPSI: LTE,Online,208-01,0x3601,14493697,393,EUTRAN-BAND7,3000,5,0,17,31,33,1', 'OK']
+
+        if self.debug:
+            print("DEBUG Device responded: ", read)
+
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        return read[1].split(": ")[1]
 
     def get_signal_quality(self) -> str:
         if self.debug:
