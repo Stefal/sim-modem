@@ -35,6 +35,12 @@ class SerialComm:
             read[i] = line.decode(self.byte_encoding).strip()
         return read
 
+    def read_until(self) -> list:
+        read = self.modem_serial.read_until(expected=b'OK')
+        read = read.decode(self.byte_encoding).strip().splitlines()
+        read = [ val for val in read if val != '']
+        return read
+        
     def read_raw(self, size: int):
         return self.modem_serial.read(size)
 
