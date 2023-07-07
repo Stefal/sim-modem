@@ -12,6 +12,18 @@ class NetworkMode(Enum):
     LTE_ONLY = 38
     ANY_BUT_LTE = 48
 
+class CurNetworkMode(Enum):
+    """Current Network mode of the modem (get)"""
+
+    NO_SERVICE = 0
+    GSM = 1
+    GPRS = 2
+    EDGE = 3
+    WCDMDA = 4
+    HSDPA = 5
+    HSUPA = 6
+    HSPA = 7
+    LTE = 8
 
 class SignalQuality(Enum):
     """Signal quality expressed as ranges"""
@@ -397,6 +409,30 @@ class Modem:
         nm = read[1].split(": ")[1]
 
         return NetworkMode(int(nm))
+
+    def get_current_network_mode(self) -> CurNetworkMode:
+        if self.debug:
+            try:
+                self.comm.send("AT+CNSMOD=?")
+                read = self.comm.read_until()
+                if read[-1] != "OK":
+                    raise SyntaxError()
+            except (IndexError, SyntaxError):
+                print("DEBUG Unsupported command : ", read)
+                return
+            print("DEBUG Sending: AT+CNSMOD?")
+
+        self.comm.send('AT+CNSMOD?')
+        read = self.comm.read_until()
+        
+        # ['AT+CNSMOD?', '+CNSMOD: 0,8', '', 'OK']
+        if self.debug:
+            print("DEBUG Device responded: ", read)
+        
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        nm = read[1].split(": ")[1].split(",")[1]
+        return CurNetworkMode(int(nm))
 
     def get_network_name(self) -> str:
         if self.debug:
