@@ -475,10 +475,11 @@ class Modem:
 
     def get_network_operator(self) -> str:
         if self.debug:
-            self.comm.send("AT+COPS=?")
-            read = self.comm.read_until()
-            if read[-1] != "OK":
-                raise Exception("Unsupported command")
+            #self.comm.send("AT+COPS=?")
+            #read = self.comm.read_until()
+            #if read[-1] != "OK":
+            #    raise Exception("Unsupported command")
+            print("no debug available, answer to AT+COPS=? is too slow")
             print("Sending: AT+COPS?")
 
         self.comm.send("AT+COPS?")
