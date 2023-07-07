@@ -279,6 +279,9 @@ class Modem:
         return read[1]
 
     def get_temperature(self) -> str:
+        """
+            Get the modem temperature, in C°
+        """
         if self.debug:
             self.comm.send("AT+CPMUTEMP=?")
             read = self.comm.read_until()
@@ -298,6 +301,11 @@ class Modem:
         return read[1].split(": ")[1]
 
     def get_autodial_mode(self) -> str:
+        """
+            Get the current autodial mode
+            0 : disabled
+            1 : enabled
+        """
         if self.debug:
             self.comm.send("AT+DIALMODE=?")
             read = self.comm.read_until()
@@ -317,6 +325,11 @@ class Modem:
         return read[1].split(": ")[1]
 
     def set_autodial_mode(self, dialmode) -> str:
+        """
+            Set the autodial mode
+            0 : disabled
+            1 : enabled
+        """
         if self.debug:
             self.comm.send("AT+DIALMODE=?")
             read = self.comm.read_until()
@@ -411,6 +424,12 @@ class Modem:
         return NetworkMode(int(nm))
 
     def get_current_network_mode(self) -> CurNetworkMode:
+        """
+            Get the current network mode used by the modem
+            GMS, GPRS, EDGE, LTE, ....
+            :return: Current Network mode
+            :rtype: CurNetworkMode
+        """
         if self.debug:
             try:
                 self.comm.send("AT+CNSMOD=?")
@@ -589,6 +608,12 @@ class Modem:
         return read[1]
 
     def get_data_connection_mode(self) -> DataMode:
+        """
+            Get the current data connection mode.
+            The result could be ECM or RNDIS
+            :return: Current data mode
+            :rtype: DataMode
+        """
         if self.debug:
             self.comm.send("AT$MYCONFIG=?")
             read = self.comm.read_until()
@@ -608,7 +633,16 @@ class Modem:
         nm = read[1].split(": ")[1]
         return DataMode(nm)
 
-    def set_data_connection_mode(self, mode: DataMode) ->str:
+    def set_data_connection_mode(self, mode: DataMode) -> DataMode:
+        """
+            Set the data connection mode
+            :param RNDIS or ECM
+            :type DataMode
+            :Example:
+
+            modem.set_data_connection_mode(DataMode["ECM"])
+        """
+
         if self.debug:
             self.comm.send("AT$MYCONFIG=?")
             read = self.comm.read_until()
