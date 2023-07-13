@@ -1,8 +1,9 @@
-from serial_comm import SerialComm
+from . serial_comm import SerialComm
 from enum import Enum
 from logging import getLogger
 import time
-
+import json
+import importlib.resources
 
 class NetworkMode(Enum):
     """Network mode of the modem (get/set)"""
@@ -56,7 +57,7 @@ class Modem:
             at_cmd_delay=at_cmd_delay,
         )
         self.debug = debug
-
+        self.oper_list = self.load_oper_list()
         self.comm.send("ATZ")
         self.comm.send("ATE1")
         read = self.comm.read_lines()
@@ -92,6 +93,12 @@ class Modem:
 
     def close(self) -> None:
         self.comm.close()
+
+    def load_oper_list(self):
+        with importlib.resources.open_text("src", "mcc-mnc-list.json") as file:
+            data = json.load(file)
+        return data
+        #keep an eye on this https://stackoverflow.com/questions/6028000/how-to-read-a-static-file-from-inside-a-python-package
 
     # --------------------------------- HARDWARE --------------------------------- #
 
@@ -466,6 +473,7 @@ class Modem:
         read = self.comm.read_until()
 
         # ['AT+COPS?', '+COPS: 0,0,"Vodafone D2",7', '', 'OK']
+        # ['AT+COPS?', '+COPS: 0,2,"20801",7', 'OK']
         if self.debug:
             print("Device responded: ", read)
 
@@ -486,12 +494,23 @@ class Modem:
         read = self.comm.read_until()
 
         # ['AT+COPS?', '+COPS: 0,0,"Vodafone D2",7', '', 'OK']
+        # ['AT+COPS?', '+COPS: 0,2,"20801",7', 'OK']
         if self.debug:
             print("Device responded: ", read)
 
         if read[-1] != "OK":
             raise Exception("Command failed")
-        return read[1].split(",")[2].strip('"').split(" ")[0]
+        mode, format, operator, act = read[1].strip("+COPS: ").replace('"', '').split(",")
+        print("mode: {} - format: {} - oper: {} - act: {}".format(mode, format, operator, act))
+        if int(format) == 2:
+            mcc = operator[:3]
+            mnc = operator[3:]
+            for mccmnc in self.oper_list:
+                if mccmnc['mcc'] == mcc and mccmnc['mnc'] == mnc:
+                    return mccmnc['brand'] or mccmnc['operator']
+            return "Unknown"
+        elif int(format) == 0:
+            return read[1].split(",")[2].strip('"').split(" ")[0]
     
     def get_eu_system_informations(self) -> str:
         """
@@ -976,7 +995,12 @@ class Modem:
 
     # ----------------------------------- OTHERS --------------------------------- #
 
-    def custom(self, at_cmd) -> str:
+    def custom_read_lines(self, at_cmd) -> str:
         self.comm.send(at_cmd)
         read = self.comm.read_lines()
+        return read
+
+    def custom(self, at_cmd) -> str:
+        self.comm.send(at_cmd)
+        read = self.comm.read_until()
         return read
