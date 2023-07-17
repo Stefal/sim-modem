@@ -501,7 +501,6 @@ class Modem:
         if read[-1] != "OK":
             raise Exception("Command failed")
         mode, format, operator, act = read[1].strip("+COPS: ").replace('"', '').split(",")
-        print("mode: {} - format: {} - oper: {} - act: {}".format(mode, format, operator, act))
         if int(format) == 2:
             mcc = operator[:3]
             mnc = operator[3:]
