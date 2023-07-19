@@ -309,9 +309,9 @@ class Modem:
 
     def get_autodial_mode(self) -> str:
         """
-            Get the current autodial mode
-            0 : disabled
-            1 : enabled
+            Get the current autodial mode, also known as usbnet network
+            0 : disabled, usbnet network enabled
+            1 : enabled, usbnet network disabled
         """
         if self.debug:
             self.comm.send("AT+DIALMODE=?")
@@ -334,8 +334,8 @@ class Modem:
     def set_autodial_mode(self, dialmode) -> str:
         """
             Set the autodial mode
-            0 : disabled
-            1 : enabled
+            0 : disabled, usbnet network enabled
+            1 : enabled, usbnet network disabled
         """
         if self.debug:
             self.comm.send("AT+DIALMODE=?")
@@ -348,6 +348,54 @@ class Modem:
         read = self.comm.read_until()
 
         # ['AT+DIALMODE=0', 'OK']
+        if self.debug:
+            print("Device responded: ", read)
+        
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        return read[-1]
+
+    def get_usbnetip_mode(self) -> str:
+        """
+            Get the Ip address mode
+            0: private
+            1: public
+        """
+        if self.debug:
+            self.comm.send("AT+USBNETIP=?")
+            read = self.comm.read_until()
+            if read[-1] != "OK":
+                raise Exception("Unsupported command")
+            print("Sending: AT+USBNETIP?")
+        
+        self.comm.send("AT+USBNETIP?")
+        read = self.comm.read_until()
+
+        # ['AT+USBNETIP?', '+USBNETIP: 1', 'OK']
+        if self.debug:
+            print("Device responded: ", read)
+        
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        return read[1].split(": ")[1]
+
+    def set_usbnetip_mode(self, ipmode) -> str:
+        """
+            Set the Ip address mode
+            0: private
+            1: public
+        """
+        if self.debug:
+            self.comm.send("AT+USBNETIP=?")
+            read = self.comm.read_until()
+            if read[-1] != "OK":
+                raise Exception("Unsupported command")
+            print("Sending: AT+USBNETIP={}".format(ipmode))
+        
+        self.comm.send("AT+USBNETIP={}".format(ipmode))
+        read = self.comm.read_until()
+
+        # ['AT+USBNETIP=0', 'OK']
         if self.debug:
             print("Device responded: ", read)
         
