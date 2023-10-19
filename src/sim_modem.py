@@ -782,7 +782,7 @@ class Modem:
         if self.debug:
             print("Device responded: ", read)
         
-        return read[1].split(": ").split(",")[1]
+        return read[1].split(": ")[1].split(",")[1]
 
 
     # ------------------------------------ GPS ----------------------------------- #
