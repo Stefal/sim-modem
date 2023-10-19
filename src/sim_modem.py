@@ -764,6 +764,26 @@ class Modem:
         #Yes it's a little hacky
         
         return self.get_data_connection_mode()
+    
+    def get_ip_address(self):
+        """
+            Get the IP address
+        """
+        if self.debug:
+            self.comm.send("AT+CGPADDR=?")
+            read =self.comm.read_until()
+            if read[-1] != "OK":
+                raise Exception("Unsupported command")
+            print("Sending: AT+CGPADDR")
+
+        self.comm.send("AT+CGPADDR")
+        read =self.comm.read_until()
+
+        if self.debug:
+            print("Device responded: ", read)
+        
+        return read[1].split(": ").split(",")[1]
+
 
     # ------------------------------------ GPS ----------------------------------- #
 
