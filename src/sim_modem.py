@@ -774,7 +774,7 @@ class Modem:
     
     def get_ip_address(self):
         """
-            Get the IP address
+            Get the public IP address
         """
         if self.debug:
             self.comm.send("AT+CGPADDR=?")
