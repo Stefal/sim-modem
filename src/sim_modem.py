@@ -5,6 +5,8 @@ import time
 import json
 import importlib.resources
 
+#TODO add __enter__ and __exit__ method to be able to use with Modem('/dev/tty..') as modem: do...
+
 class NetworkMode(Enum):
     """Network mode of the modem (get/set)"""
 
@@ -33,6 +35,8 @@ class SignalQuality(Enum):
     FAIR = "FAIR"
     GOOD = "GOOD"
     EXCELLENT = "EXCELLENT"
+    UNDETECTABLE = "NOT DETECTABLE"
+    UNKNOWN = "UNKNOWN"
 
 class DataMode(Enum):
 
@@ -238,14 +242,14 @@ class Modem:
             raise Exception("Command failed")
         return read[1]
 
-    # def reset_module(self) -> str:
-    #     self.comm.send("AT+CRESET")
-    #     read = self.comm.read_until()
-    #     # ['AT+CRESET', 'OK']
-    #     if read[-1] != "OK":
-    #         raise Exception("Command failed")
-    #     print("Connection lost")
-    #     exit()
+    def reset_module(self) -> str:
+        self.comm.send("AT+CRESET")
+        read = self.comm.read_until()
+        # ['AT+CRESET', 'OK']
+        if read[-1] != "OK":
+            raise Exception("Command failed")
+        print("Connection lost")
+        exit()
 
     def enable_echo_suppression(self) -> str:
         if self.debug:
@@ -656,9 +660,12 @@ class Modem:
             return SignalQuality.FAIR
         elif int(raw) < 20:
             return SignalQuality.GOOD
-        else:
+        elif int(raw) < 32:
             return SignalQuality.EXCELLENT
-
+        elif int(raw) == 99:
+            return SignalQuality.UNDETECTABLE
+        else:
+            return SignalQuality.UNKNOWN
     def get_phone_number(self) -> str:
         if self.debug:
             self.comm.send("AT+CNUM=?")
