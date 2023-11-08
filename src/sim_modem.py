@@ -66,11 +66,17 @@ class Modem:
         self.comm.send("ATE1")
         read = self.comm.read_lines()
         # ['ATZ', 'OK', 'ATE1', 'OK']
-        if read[-1] != "OK":
+        # ['ATZ', 'OK', 'ATE1', 'OK', '', '+CGEV: ME PDN DEACT 1'] <= When the modem have problem to connect
+        try:
+            ate1_rtn_idx = read.index('ATE1')
+            ok_rtn_idx = ate1_rtn_idx + 1
+            if read[ok_rtn_idx] != "OK":
+                raise Exception("Modem do not respond", read)
+            if self.debug:
+                print("Modem connected, debug mode enabled")
+        except (Exception, ValueError, IndexError):
             raise Exception("Modem do not respond", read)
 
-        if self.debug:
-            print("Modem connected, debug mode enabled")
 
     def reconnect(self) -> None:
         try:
@@ -89,11 +95,16 @@ class Modem:
         self.comm.send("ATE1")
         read = self.comm.read_until()
         # ['ATZ', 'OK', 'ATE1', 'OK']
-        if read[-1] != "OK":
-            raise Exception("Connection lost", read)
-
-        if self.debug:
-            print("Modem connected, debug mode enabled")
+        # ['ATZ', 'OK', 'ATE1', 'OK', '', '+CGEV: ME PDN DEACT 1'] <= When the modem have problem to connect
+        try:
+            ate1_rtn_idx = read.index('ATE1')
+            ok_rtn_idx = ate1_rtn_idx + 1
+            if read[ok_rtn_idx] != "OK":
+                raise Exception("Connection lost", read)
+            if self.debug:
+                print("Modem connected, debug mode enabled")
+        except (Exception, ValueError, IndexError):
+            raise Exception("Modem do not respond", read)
 
     def close(self) -> None:
         self.comm.close()
