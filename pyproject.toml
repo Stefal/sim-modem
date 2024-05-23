@@ -20,8 +20,6 @@ dependencies = [
 # NOT have to specify this line.
 include-package-data = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
 
 [project.urls]
 Repository = "https://github.com/Stefal/sim-modem"
