@@ -14,5 +14,14 @@ dependencies = [
     'pyserial==3.5'
 ]
 
+[tool.setuptools]
+# ...
+# By default, include-package-data is true in pyproject.toml, so you do
+# NOT have to specify this line.
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [project.urls]
 Repository = "https://github.com/Stefal/sim-modem"
