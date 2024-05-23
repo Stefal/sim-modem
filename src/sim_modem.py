@@ -1,4 +1,4 @@
-from . serial_comm import SerialComm
+from serial_comm import SerialComm
 from enum import Enum
 from logging import getLogger
 import time
