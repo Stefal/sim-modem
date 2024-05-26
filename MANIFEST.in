@@ -1,3 +1,2 @@
 include REQUIREMENTS.txt
-include src/operator_list.txt
-include src/mcc-mnc-list.json
+include src/res/*

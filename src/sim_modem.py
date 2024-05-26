@@ -4,6 +4,7 @@ from logging import getLogger
 import time
 import json
 import importlib.resources
+import res # to get /res directory content
 
 #TODO add __enter__ and __exit__ method to be able to use with Modem('/dev/tty..') as modem: do...
 
@@ -110,7 +111,7 @@ class Modem:
         self.comm.close()
 
     def load_oper_list(self):
-        with importlib.resources.open_text("src", "mcc-mnc-list.json") as file:
+        with importlib.resources.open_text(res, "mcc-mnc-list.json") as file:
             data = json.load(file)
         return data
         #keep an eye on this https://stackoverflow.com/questions/6028000/how-to-read-a-static-file-from-inside-a-python-package

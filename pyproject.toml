@@ -11,15 +11,8 @@ keywords = ["modem", "sms", "gsm", "sim", "atcommands"]
 requires-python = ">=3.7"
 license = {text = "MIT"}
 dependencies = [
-    'pyserial==3.5'
+    'pyserial>=3.5'
 ]
-
-[tool.setuptools]
-# ...
-# By default, include-package-data is true in pyproject.toml, so you do
-# NOT have to specify this line.
-include-package-data = true
-
 
 [project.urls]
 Repository = "https://github.com/Stefal/sim-modem"
