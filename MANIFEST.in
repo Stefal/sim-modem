@@ -1,1 +1,2 @@
 include REQUIREMENTS.txt
+include src/res/*
