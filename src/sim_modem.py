@@ -40,10 +40,11 @@ class SignalQuality(Enum):
     UNKNOWN = "UNKNOWN"
 
 class DataMode(Enum):
+    """ Current data mode (usbnetmode) (get/set)"""
 
-    RNDIS = '"usbnetmode",0'
-    ECM = '"usbnetmode",1'
-    
+    RNDIS = '0'
+    ECM = '1'
+
 class Modem:
     """Class for interfacing with mobile modem"""
 
@@ -741,12 +742,15 @@ class Modem:
         read = self.comm.read_until()
 
         # ['AT$MYCONFIG?', '$MYCONFIG: "usbnetmode",1', '', 'OK']
+        # or, on newer model
+        # ['AT$MYCONFIG?', '$MYCONFIG: "usbnetmode",1,1', '', 'OK']
         if self.debug:
             print("Device responded: ", read)
 
         if read[-1] != "OK":
             raise Exception("Command failed")
         nm = read[-2].split(": ")[1]
+        nm = nm.split(",")[1]
         return DataMode(nm)
 
     def set_data_connection_mode(self, mode: DataMode) -> DataMode:
@@ -764,9 +768,9 @@ class Modem:
             read = self.comm.read_until()
             if read[-1] != "OK":
                 raise Exception("Unsupported command")
-            print("Sending: AT$MYCONFIG={}".format(mode.value))
+            print("Sending: AT$MYCONFIG={}".format("usbnetmode," + mode.value))
         
-        self.comm.send("AT$MYCONFIG={}".format(mode.value))
+        self.comm.send("AT$MYCONFIG={}".format("usbnetmode," + mode.value))
         #When switching mode, the modem get detached. We have to close the connection or
         # the modem will get a new tty port upon reconnection.
         self.close()
