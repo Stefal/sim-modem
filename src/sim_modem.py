@@ -804,8 +804,14 @@ class Modem:
 
         if self.debug:
             print("Device responded: ", read)
-        
-        return read[1].split(": ")[1].split(",")[1]
+        try:
+            if read == ['AT+CGPADDR', 'OK']:
+                ip_address = "No ip"
+            else:
+                ip_address = read[1].split(": ")[1].split(",")[1]
+        except IndexError:
+            ip_address = "Error"
+        return ip_address
 
 
     # ------------------------------------ GPS ----------------------------------- #
